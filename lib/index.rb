@@ -4,6 +4,7 @@ require_relative './services/merge_branch_service'
 
 def presence(value)
   return nil if value == ""
+
   value
 end
 
@@ -19,7 +20,7 @@ end
 inputs = {
   type: presence(ENV['INPUT_TYPE']) || MergeBrachService::TYPE_LABELED, # labeled | comment | now
   label_name: ENV['INPUT_LABEL_NAME'],
-  target_branch: ENV['INPUT_TARGET_BRANCH']
+  target_branches: ENV['INPUT_TARGET_BRANCHES']
 }
 
 MergeBrachService.validate_inputs!(inputs)
@@ -28,14 +29,17 @@ service = MergeBrachService.new(inputs, @event)
 if service.valid?
   @client = Octokit::Client.new(access_token: @github_token)
 
-  comparison = @client.compare(@repository, inputs[:target_branch], @head_to_merge)
-  if comparison.status == 'identical' && presence(ENV['INPUT_DISABLE_FASTFORWARDS']) && ENV['INPUT_DISABLE_FASTFORWARDS'] == "true"
-    puts "Neutral: skip fastforward merge target_branch: #{inputs[:target_branch]} @head_to_merge: #{@head_to_merge}"
-  else
-    puts "Running perform merge target_branch: #{inputs[:target_branch]} @head_to_merge: #{@head_to_merge}}"
-    @client.merge(@repository, inputs[:target_branch], @head_to_merge, ENV['INPUT_MESSAGE'] ? {commit_message: ENV['INPUT_MESSAGE']} : {})
-    puts "Completed: Finish merge branch #{@head_to_merge} to #{inputs[:target_branch]}"
+  inputs[:target_branches].each do |target_branch|
+    comparison = @client.compare(@repository, target_branch, @head_to_merge)
+    if comparison.status == 'identical' && presence(ENV['INPUT_DISABLE_FASTFORWARDS']) && ENV['INPUT_DISABLE_FASTFORWARDS'] == "true"
+      puts "Neutral: skip fastforward merge target_branch: #{target_branch} @head_to_merge: #{@head_to_merge}"
+    else
+      puts "Running perform merge target_branch: #{target_branch} @head_to_merge: #{@head_to_merge}}"
+      commit_message = "Merging #{@head_to_merge} into #{target_branch}"
+      @client.merge(@repository, target_branch, @head_to_merge, { commit_message: commit_message })
+      puts "Completed: Finish merge branch #{@head_to_merge} to #{target_branch}"
+    end
   end
 else
-  puts "Neutral: skip merge target_branch: #{inputs[:target_branch]} @head_to_merge: #{@head_to_merge}"
+  puts "Neutral: skip merge target_branch: #{inputs[:target_branches]} @head_to_merge: #{@head_to_merge}"
 end

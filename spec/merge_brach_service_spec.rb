@@ -3,7 +3,7 @@ require_relative '../lib/services/merge_branch_service'
 describe MergeBrachService do
   context "with invalid type" do
     let(:inputs) {
-      { type: 'invalid_type', event: {}, target_branch: 'develop' }
+      { type: 'invalid_type', event: {}, target_branches: ['develop'] }
     }
 
     it ".validate_inputs!" do
@@ -13,10 +13,10 @@ describe MergeBrachService do
 
   context "with labeled" do
     let(:label_name) { 'merge in develop' }
-    let(:target_branch) { 'develop' }
+    let(:target_branches) { ['develop'] }
     let(:event) { { 'action' => 'labeled', 'label' => { 'name' => label_name } } }
     let(:inputs) {
-      { type: 'labeled', target_branch: target_branch, label_name: label_name }
+      { type: 'labeled', target_branches: target_branches, label_name: label_name }
     }
 
     context "with valid inputs" do

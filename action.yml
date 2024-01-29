@@ -9,8 +9,8 @@ inputs:
   label_name:
     description: 'PR Label name'
     required: false
-  target_branch:
-    description: 'The name of target branch to merge'
+  target_branches:
+    description: 'The array of target branches to merge'
     required: true
   from_branch:
     description: 'Alias head_to_merge input'

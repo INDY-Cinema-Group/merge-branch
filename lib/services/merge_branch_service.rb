@@ -4,9 +4,9 @@ class MergeBrachService
   TYPE_LABELED = "labeled".freeze
   TYPE_NOW = "now".freeze
 
-  def self.validate_inputs!(target_branch:, type:, label_name:)
+  def self.validate_inputs!(target_branches:, type:, label_name:)
     raise "Error: Invalid type" unless [TYPE_LABELED, TYPE_NOW].include?(type)
-    raise "Error: Empty target branch"unless target_branch
+    raise "Error: No target branches" unless target_branches.is_a?(Array) && !target_branches.empty?
     if type == TYPE_LABELED
       raise " Error: Empty target label name" unless label_name
     end
