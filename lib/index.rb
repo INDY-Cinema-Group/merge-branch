@@ -20,7 +20,7 @@ end
 inputs = {
   type: presence(ENV['INPUT_TYPE']) || MergeBrachService::TYPE_LABELED, # labeled | comment | now
   label_name: ENV['INPUT_LABEL_NAME'],
-  target_branches: ENV['INPUT_TARGET_BRANCHES']
+  target_branches: JSON.parse(ENV['INPUT_TARGET_BRANCHES'])
 }
 
 MergeBrachService.validate_inputs!(inputs)
